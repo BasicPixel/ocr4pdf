@@ -1,4 +1,5 @@
 import pytesseract
+import sys
 from pdf2image import convert_from_path
 
 # Use Homebrew to locate Tesseract automatically (if installed)
@@ -11,11 +12,15 @@ else:
     # Replace with your path
     pytesseract.pytesseract.tesseract_cmd = r'/opt/homebrew/bin/tesseract'
 
-# Path to the PDF file
-pdf_path = './test.pdf'
+# Get PDF filename from command line arguments
+if len(sys.argv) < 2:
+    print("Error: Please provide the PDF filename as a command-line argument.")
+    exit(1)
+pdf_path = sys.argv[1]
 
 # Name of the output text file
-output_filename = 'test.txt'
+# Dynamically create output filename
+output_filename = os.path.splitext(pdf_path)[0] + '.txt'
 
 # Convert PDF pages to images (one image per page)
 images = convert_from_path(pdf_path, dpi=200)
