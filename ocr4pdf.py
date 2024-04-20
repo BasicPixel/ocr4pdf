@@ -1,6 +1,7 @@
 import pytesseract
 import sys
 from pdf2image import convert_from_path
+from docx import Document
 
 # Use Homebrew to locate Tesseract automatically (if installed)
 import os
@@ -18,20 +19,24 @@ if len(sys.argv) < 2:
     exit(1)
 pdf_path = sys.argv[1]
 
-# Name of the output text file
 # Dynamically create output filename
-output_filename = os.path.splitext(pdf_path)[0] + '.txt'
+filename = os.path.splitext(pdf_path)[0]
+output_filename = filename + '.txt'
 
 # Convert PDF pages to images (one image per page)
 images = convert_from_path(pdf_path, dpi=200)
 
-# Extract text from each image and append it to the output string
-text = ""
-for image in images:
-    text += pytesseract.image_to_string(image, lang='ara') + "\n"
+# Create word document to store text
+document = Document("template.docx")
+document.add_heading(filename, 0)
 
-# Write the extracted text to the output file
-with open(output_filename, 'w') as f:
-    f.write(text)
+# Extract text from each image and append it to the word document
+for image in images:
+    p = document.add_paragraph(
+        pytesseract.image_to_string(image, lang='ara') + "\n")
+
+    document.add_page_break()
+
+document.save('./' + filename + '.docx')
 
 print(f"Text extracted and saved to {output_filename}.")
